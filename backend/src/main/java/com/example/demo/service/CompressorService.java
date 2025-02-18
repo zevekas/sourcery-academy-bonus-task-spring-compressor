@@ -1,8 +1,6 @@
 package com.example.demo.service;
 
-import com.example.demo.model.Compressor;
-import com.example.demo.repo.CompressorMyBatisRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -11,20 +9,7 @@ import java.util.List;
 @Service
 public class CompressorService {
 
-    @Autowired
-    CompressorMyBatisRepository repo;
-
-    public List<Compressor> getAllCompressed() {
-        return repo.findAll();
-    }
-
-    public int addCompress(Compressor compressor) {
-        String compressed = compressString(compressor.getDecompressed());
-        compressor.setCompressed(compressed);
-        return repo.insert(compressor);
-    }
-
-    private String compressString(String stringToCompress) {
+    public String compressString(String stringToCompress) {
         int length = stringToCompress.length();
 
         if (length == 0) return "";
@@ -61,11 +46,36 @@ public class CompressorService {
                 .reduce("", String::concat);
     }
 
-    public Compressor getCompressorById(int id) {
-        return repo.findById(id);
-    }
+    public String decompressString(String stringToDecompress) {
+        int length = stringToDecompress.length();
 
-    public int deleteById(int id) {
-        return repo.deleteById(id);
+        String decompressed = "";
+
+        char letter = stringToDecompress.charAt(0);
+        String number = String.valueOf(stringToDecompress.charAt(1));
+
+        for (int i = 1; i < length - 1; i++) {
+            char next = stringToDecompress.charAt(i + 1);
+
+
+            if (next >= 97 || i == length - 2) {
+
+                if (i == length - 2) number += next;
+
+                int amount = Integer.parseInt(number);
+
+                for (int j = 0; j < amount; j++) {
+                    decompressed += letter;
+                }
+
+                letter = next;
+                number = "";
+                continue;
+            }
+
+            number += next;
+        }
+
+        return decompressed;
     }
 }
