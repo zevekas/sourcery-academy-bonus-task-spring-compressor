@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useState} from "react";
 import "./styles.css";
 
 interface InputFieldProps {
@@ -8,8 +8,22 @@ interface InputFieldProps {
 
 const InputField: React.FC<InputFieldProps> = ({input, setInput}) => {
 
-    const handleAdd = async (e: MouseEvent, action: string) => {
+    const [answer, setAnswer] = useState<string>("")
 
+    const handleAdd = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>, action: string) => {
+        e.preventDefault();
+
+        try {
+            const response = await fetch(`http://localhost:8080/api/${action}/${input}`, {method: "GET"});
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            const converted: string = await response.text();
+            setAnswer(converted);
+            setInput("");
+        } catch (error) {
+            console.error("Failed to fetch:", error);
+        }
     }
 
     return (
@@ -32,6 +46,11 @@ const InputField: React.FC<InputFieldProps> = ({input, setInput}) => {
                     handleAdd(e, "decompress")}>
                     Decompress
                 </button>
+            </form>
+            <form className="input">
+                <span className="answer">
+                {answer}
+            </span>
             </form>
 
         </div>
